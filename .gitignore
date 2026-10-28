@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+env/
+.env
+!.env.example
+
+# Pytest / coverage
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# Alembic — never commit actual DB snapshots
+# alembic/versions/*.py — these SHOULD be committed
+*.db
+*.sqlite
+*.sqlite3
+
+# ML model artifacts & datasets (large binaries / files > 100MB exceed GitHub limits)
+ml_models/
+uploads/
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.csv
+ml/data/
+data/
+
+# Node / Next.js
+node_modules/
+.next/
+.vercel/
+out/
+
+# IDE / OS
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Secrets
+*.pem
+*.key
+.env.local
+.env.production
