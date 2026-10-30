@@ -20,6 +20,7 @@ from app.db import models as m
 
 
 async def seed():
+    
     # Ensure tables exist (dev convenience; use Alembic in production)
     async with engine.begin() as conn:
         await conn.run_sync(m.Base.metadata.create_all)

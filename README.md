@@ -73,7 +73,17 @@ npm run build
 ### Re-seed Real Benchmark Data (Optional)
 ```powershell
 cd "C:\Users\HP\Downloads\mini project\card-net\backend"
-& "C:\Users\HP\Downloads\mini project\.venv\Scripts\python.exe" seed_data.py
+# Seed 100 benchmark transactions with real predictions & SHAP explanations
+& "C:\Users\HP\Downloads\mini project\.venv\Scripts\python.exe" seed_dataset.py --count 100
+
+# Or seed a specific dataset file:
+& "C:\Users\HP\Downloads\mini project\.venv\Scripts\python.exe" seed_dataset.py --file ../datasets/sample_batch_mixed_50.csv
+```
+
+### Generate Curated Datasets (Optional)
+```powershell
+cd "C:\Users\HP\Downloads\mini project\card-net"
+& "C:\Users\HP\Downloads\mini project\.venv\Scripts\python.exe" generate_datasets.py
 ```
 
 ### Re-train TAB-Net Model (Optional)

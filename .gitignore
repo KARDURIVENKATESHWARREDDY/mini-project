@@ -37,6 +37,10 @@ uploads/
 ml/data/
 data/
 
+# Allow sample & benchmark datasets for testing & UI downloads
+!datasets/*.csv
+!frontend/public/datasets/*.csv
+
 # Node / Next.js
 node_modules/
 .next/

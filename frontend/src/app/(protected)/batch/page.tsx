@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { batchApi } from "@/lib/api";
 import { StatusBadge } from "@/components/ui/badges";
 import { formatDate, formatNumber } from "@/lib/utils";
-import { Upload, FileText, AlertTriangle, RefreshCw, ChevronLeft, ChevronRight, CheckCircle2 } from "lucide-react";
+import { Upload, FileText, AlertTriangle, RefreshCw, ChevronLeft, ChevronRight, CheckCircle2, Download, Play, Database, ShieldCheck, AlertOctagon, Layers } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
@@ -39,6 +39,78 @@ export default function BatchPage() {
         "Upload failed.";
       toast.error(msg);
     } finally {
+      setUploading(false);
+    }
+  }
+
+  const SAMPLE_DATASETS = [
+    {
+      name: "Mixed Benchmark",
+      filename: "sample_batch_mixed_50.csv",
+      rows: 50,
+      frauds: 15,
+      badge: "30% Fraud",
+      color: "amber",
+      desc: "Balanced subset with 35 legitimate and 15 fraudulent transactions.",
+    },
+    {
+      name: "Confirmed Fraud Cases",
+      filename: "sample_batch_fraud_only_25.csv",
+      rows: 25,
+      frauds: 25,
+      badge: "100% Fraud",
+      color: "red",
+      desc: "Confirmed fraud patterns to test detector sensitivity and investigation alerts.",
+    },
+    {
+      name: "Legitimate Baseline",
+      filename: "sample_batch_legit_only_50.csv",
+      rows: 50,
+      frauds: 0,
+      badge: "0% Fraud",
+      color: "emerald",
+      desc: "Normal user transactions to verify false positive rates and low risk scoring.",
+    },
+    {
+      name: "High-Volume Batch",
+      filename: "sample_batch_large_500.csv",
+      rows: 500,
+      frauds: 50,
+      badge: "500 Rows",
+      color: "blue",
+      desc: "Throughput test dataset (450 legit, 50 fraud) for asynchronous chunk processing.",
+    },
+    {
+      name: "High-Value Attacks",
+      filename: "sample_fraud_high_value_25.csv",
+      rows: 25,
+      frauds: 25,
+      badge: "Max $2,125",
+      color: "rose",
+      desc: "Highest-amount fraudulent attacks to test high-loss risk detection.",
+    },
+    {
+      name: "Evaluation Split",
+      filename: "evaluation_test_split_1000.csv",
+      rows: 1000,
+      frauds: 25,
+      badge: "1,000 Rows",
+      color: "purple",
+      desc: "Held-out test split for comprehensive offline model evaluation.",
+    },
+  ];
+
+  async function handleUseSample(sample: typeof SAMPLE_DATASETS[0]) {
+    if (uploading) return;
+    setUploading(true);
+    try {
+      const res = await fetch(`/datasets/${sample.filename}`);
+      if (!res.ok) throw new Error("Could not retrieve sample dataset file.");
+      const blob = await res.blob();
+      const file = new File([blob], sample.filename, { type: "text/csv" });
+      await uploadFile(file);
+    } catch {
+      toast.error("Failed to load sample dataset.");
       setUploading(false);
     }
   }
@@ -101,6 +173,65 @@ export default function BatchPage() {
         <div className="text-[11px] text-blue-400/80 space-y-1">
           <p className="font-medium">Expected CSV format (ULB/Kaggle creditcard.csv schema)</p>
           <p>Required columns: Time, V1, V2, …, V28, Amount. Optional: Class (ground-truth label).</p>
+        </div>
+      </div>
+
+      {/* Sample Datasets Suite */}
+      <div className="card-glass p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Database className="w-4 h-4 text-emerald-400" />
+            <h2 className="text-sm font-semibold text-foreground">Ready-to-Use Benchmark Datasets</h2>
+          </div>
+          <span className="text-xs text-muted-foreground">Standardized ULB/Kaggle benchmark splits</span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {SAMPLE_DATASETS.map((sample) => (
+            <div
+              key={sample.filename}
+              className="p-3.5 rounded-xl border border-border/40 bg-muted/10 hover:bg-muted/20 transition-all flex flex-col justify-between gap-3"
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="text-xs font-semibold text-foreground truncate">{sample.name}</h3>
+                  <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted border border-border/50 text-foreground shrink-0">
+                    {sample.badge}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2 leading-relaxed">
+                  {sample.desc}
+                </p>
+                <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground font-mono">
+                  <span>{sample.rows} rows</span>
+                  <span>•</span>
+                  <span>{sample.frauds} confirmed fraud</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-1 border-t border-border/30">
+                <a
+                  href={`/datasets/${sample.filename}`}
+                  download={sample.filename}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-muted/50 hover:bg-muted text-[11px] font-medium text-foreground transition-colors"
+                  title="Download CSV to inspect or use locally"
+                >
+                  <Download className="w-3 h-3 text-muted-foreground" />
+                  Download
+                </a>
+                <button
+                  type="button"
+                  onClick={() => handleUseSample(sample)}
+                  disabled={uploading}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-lg bg-emerald-600/90 hover:bg-emerald-600 text-[11px] font-medium text-white transition-colors disabled:opacity-50"
+                  title="Load and submit this dataset for batch screening immediately"
+                >
+                  <Play className="w-3 h-3 fill-current" />
+                  Screen Now
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
